@@ -88,58 +88,50 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      const dpr = 3;
-      const baseWidth = 1170;
-      const baseHeight = 2532;
+      // Logical dimensions for iPhone 12/13/14/15 (390x844)
+      const baseWidth = 390;
+      const baseHeight = 844;
+      const dpr = 3; // Exports 1170 x 2532
 
       canvas.width = baseWidth * dpr;
       canvas.height = baseHeight * dpr;
       ctx.scale(dpr, dpr);
 
-      // Clear the canvas
       ctx.clearRect(0, 0, baseWidth, baseHeight);
 
       const currentTheme = themes[theme];
-
       ctx.fillStyle = currentTheme.background(ctx, baseWidth, baseHeight);
       ctx.fillRect(0, 0, baseWidth, baseHeight);
 
-      // Slightly smaller for better vertical fit
-      const dotRadius = 12; 
-      const spacing = 14;
+      // Centering Math: totalColumns * 2r + (totalColumns - 1) * spacing
+      // 20 * 8 + 19 * 6 = 160 + 114 = 274 (Even number!)
+      const dotRadius = 4; 
+      const spacing = 6;
       const totalColumns = 20;
 
       const gridWidth = totalColumns * (dotRadius * 2) + (totalColumns - 1) * spacing;
       const totalRows = Math.ceil(daysInYear / totalColumns);
       const gridHeight = totalRows * (dotRadius * 2) + (totalRows - 1) * spacing;
 
-      // Pushed down to avoid clock (y: 1000 is safe below date/time)
-      const safeAreaPaddingTop = 1000;
-      const safeAreaPaddingBottom = 400;
-      const drawableHeight = baseHeight - safeAreaPaddingTop - safeAreaPaddingBottom;
-
-      const titleHeight = 50;
-      const subtitleHeight = 40;
-      const paddingBetweenTitleAndGrid = 80;
-      const paddingBetweenGridAndSubtitle = 80;
-
-      const totalContentHeight = titleHeight + paddingBetweenTitleAndGrid + gridHeight + paddingBetweenGridAndSubtitle + subtitleHeight;
-      const contentStartY = Math.round(safeAreaPaddingTop + (drawableHeight - totalContentHeight) / 2);
-
-      const titleY = contentStartY;
-      const gridStartY = titleY + titleHeight + paddingBetweenTitleAndGrid;
-      const subtitleY = gridStartY + gridHeight + paddingBetweenGridAndSubtitle;
+      // Vertical position pushed down to clear clock (~350 is safe)
+      const safeAreaTop = 350;
+      const titleY = safeAreaTop;
+      const gridStartY = titleY + 40; // Title font size is 18, 40px gap
+      const subtitleY = gridStartY + gridHeight + 40;
       
-      // Force integer rounding for perfect centering
-      const gridStartX = Math.round((baseWidth - gridWidth) / 2);
+      // gridStartX = (390 - 274) / 2 = 58 (Perfect integer)
+      const gridStartX = Math.floor((baseWidth - gridWidth) / 2);
 
       ctx.fillStyle = currentTheme.text;
-      ctx.globalAlpha = 0.8;
-      const titleFont = theme === 'eink' ? 'bold 52px monospace' : '700 52px "Inter", sans-serif';
-      ctx.font = titleFont;
       ctx.textAlign = 'center';
+      
+      // Title
+      ctx.globalAlpha = 0.8;
+      const titleSize = 18;
+      ctx.font = theme === 'eink' ? `bold ${titleSize}px monospace` : `700 ${titleSize}px "Inter", sans-serif`;
       ctx.fillText('This Year in Days', Math.round(baseWidth / 2), Math.round(titleY));
 
+      // Grid
       for (let i = 0; i < daysInYear; i++) {
         const row = Math.floor(i / totalColumns);
         const col = i % totalColumns;
@@ -148,12 +140,12 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
         const y = gridStartY + row * (dotRadius * 2 + spacing) + dotRadius;
 
         ctx.beginPath();
-        ctx.arc(x, y, dotRadius, 0, 2 * Math.PI);
+        ctx.arc(Math.round(x), Math.round(y), dotRadius, 0, 2 * Math.PI);
 
         if (i < dayOfYear) {
           if (currentTheme.lived.shadow) {
             ctx.shadowColor = currentTheme.lived.color;
-            ctx.shadowBlur = 12;
+            ctx.shadowBlur = 4;
           }
           ctx.fillStyle = currentTheme.lived.color;
           ctx.fill();
@@ -161,7 +153,7 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
           ctx.shadowBlur = 0;
           if ((currentTheme as any).futureOutline) {
             ctx.strokeStyle = (currentTheme as any).futureOutline;
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           } else {
             ctx.fillStyle = currentTheme.future.color;
@@ -172,16 +164,16 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
 
       ctx.shadowBlur = 0;
 
+      // Subtitle
       ctx.fillStyle = currentTheme.text;
       ctx.globalAlpha = 0.7;
-      const subtitleFont = theme === 'eink' ? '38px monospace' : '500 38px "Inter", sans-serif';
-      ctx.font = subtitleFont;
-      ctx.textAlign = 'center';
+      const subSize = 13;
+      ctx.font = theme === 'eink' ? `${subSize}px monospace` : `500 ${subSize}px "Inter", sans-serif`;
       ctx.fillText(`Day ${dayOfYear} of ${daysInYear}`, Math.round(baseWidth / 2), Math.round(subtitleY));
       ctx.globalAlpha = 1.0;
 
       if (autoDownload) {
-        setTimeout(handleDownload, 500);
+        setTimeout(handleDownload, 1000);
       }
     };
 
@@ -211,9 +203,9 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
         </div>
       </div>
 
-      <p className="text-slate-500 mb-4 text-sm">A high-resolution image will be generated for download.</p>
+      <p className="text-slate-500 mb-4 text-sm">Corrected for iPhone 12 centering and clock clearance.</p>
       <div className="flex justify-center mb-6 bg-slate-100 p-2 rounded-lg">
-        <canvas ref={canvasRef} style={{ width: '50%', borderRadius: '8px' }} />
+        <canvas ref={canvasRef} style={{ width: '200px', borderRadius: '8px', border: '1px solid #ddd' }} />
       </div>
       <button
         onClick={handleDownload}

@@ -65,9 +65,9 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
+      const baseWidth = 390;
+      const baseHeight = 844;
       const dpr = 3;
-      const baseWidth = 1170;
-      const baseHeight = 2532;
 
       canvas.width = baseWidth * dpr;
       canvas.height = baseHeight * dpr;
@@ -76,42 +76,31 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
       ctx.clearRect(0, 0, baseWidth, baseHeight);
 
       const currentTheme = themes[theme];
-
       ctx.fillStyle = currentTheme.background(ctx, baseWidth, baseHeight);
       ctx.fillRect(0, 0, baseWidth, baseHeight);
 
-      // Adjusted to be even: 52 * 16 + 51 * 4 = 1036 (Even)
-      const pillWidth = 16;
-      const pillHeight = 60;
-      const spacing = 4;
+      // Width calculation: 52 * 5 + 51 * 2 = 260 + 102 = 362 (Even!)
+      const pillWidth = 5;
+      const pillHeight = 20;
+      const spacing = 2;
       const totalColumns = 52;
 
       const barWidth = totalColumns * pillWidth + (totalColumns - 1) * spacing;
-
-      const safeAreaPaddingTop = 1000;
-      const safeAreaPaddingBottom = 450;
-      const drawableHeight = baseHeight - safeAreaPaddingTop - safeAreaPaddingBottom;
-
-      const titleHeight = 50;
-      const subtitleHeight = 40;
-      const barHeight = pillHeight;
-      const paddingBetweenTitleAndBar = 60;
-      const paddingBetweenBarAndSubtitle = 60;
-
-      const totalContentHeight = titleHeight + paddingBetweenTitleAndBar + barHeight + paddingBetweenBarAndSubtitle + subtitleHeight;
-      const contentStartY = Math.round(safeAreaPaddingTop + (drawableHeight - totalContentHeight) / 2);
-
-      const titleY = contentStartY;
-      const barStartY = titleY + titleHeight + paddingBetweenTitleAndBar;
-      const subtitleY = barStartY + barHeight + paddingBetweenBarAndSubtitle;
-      const barStartX = Math.round((baseWidth - barWidth) / 2);
+      const safeAreaTop = 350;
+      
+      const titleY = safeAreaTop;
+      const barStartY = titleY + 40;
+      const subtitleY = barStartY + pillHeight + 40;
+      
+      // gridStartX = (390 - 362) / 2 = 14
+      const barStartX = Math.floor((baseWidth - barWidth) / 2);
 
       ctx.fillStyle = currentTheme.text;
-
-      ctx.globalAlpha = 0.8;
-      const titleFont = theme === 'eink' ? 'bold 48px monospace' : '700 48px "Inter", sans-serif';
-      ctx.font = titleFont;
       ctx.textAlign = 'center';
+
+      // Title
+      ctx.globalAlpha = 0.8;
+      ctx.font = theme === 'eink' ? 'bold 16px monospace' : '700 16px "Inter", sans-serif';
       ctx.fillText('Year in Weeks', Math.round(baseWidth / 2), Math.round(titleY));
 
       for (let i = 0; i < totalColumns; i++) {
@@ -119,12 +108,12 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
         const y = barStartY;
 
         ctx.beginPath();
-        ctx.roundRect(x, y, pillWidth, pillHeight, [pillWidth / 2]);
+        ctx.roundRect(Math.round(x), Math.round(y), pillWidth, pillHeight, [pillWidth / 2]);
 
         if (i < weekOfYear) {
           if (currentTheme.lived.shadow) {
             ctx.shadowColor = currentTheme.lived.color;
-            ctx.shadowBlur = 12;
+            ctx.shadowBlur = 4;
           }
           ctx.fillStyle = currentTheme.lived.color;
           ctx.fill();
@@ -132,7 +121,7 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
           ctx.shadowBlur = 0;
           if ((currentTheme as any).futureOutline) {
             ctx.strokeStyle = (currentTheme as any).futureOutline;
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           } else {
             ctx.fillStyle = currentTheme.future.color;
@@ -143,11 +132,10 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
 
       ctx.shadowBlur = 0;
 
+      // Subtitle
       ctx.fillStyle = currentTheme.text;
       ctx.globalAlpha = 0.7;
-      const subtitleFont = theme === 'eink' ? '36px monospace' : '500 36px "Inter", sans-serif';
-      ctx.font = subtitleFont;
-      ctx.textAlign = 'center';
+      ctx.font = theme === 'eink' ? '12px monospace' : '500 12px "Inter", sans-serif';
       ctx.fillText(`Week ${weekOfYear} of 52`, Math.round(baseWidth / 2), Math.round(subtitleY));
       ctx.globalAlpha = 1.0;
     };
@@ -187,9 +175,8 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
         </div>
       </div>
 
-      <p className="text-slate-500 mb-4 text-sm">A high-resolution image will be generated for download.</p>
       <div className="flex justify-center mb-6 bg-slate-100 p-2 rounded-lg">
-        <canvas ref={canvasRef} style={{ width: '50%', borderRadius: '8px' }} />
+        <canvas ref={canvasRef} style={{ width: '200px', borderRadius: '8px' }} />
       </div>
       <button
         onClick={handleDownload}
