@@ -104,23 +104,24 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
       ctx.fillStyle = currentTheme.background(ctx, baseWidth, baseHeight);
       ctx.fillRect(0, 0, baseWidth, baseHeight);
 
-      // Adjusted for better visual balance on mobile
-      const dotRadius = 14; 
-      const spacing = 16;
+      // Slightly smaller for better vertical fit
+      const dotRadius = 12; 
+      const spacing = 14;
       const totalColumns = 20;
 
       const gridWidth = totalColumns * (dotRadius * 2) + (totalColumns - 1) * spacing;
       const totalRows = Math.ceil(daysInYear / totalColumns);
       const gridHeight = totalRows * (dotRadius * 2) + (totalRows - 1) * spacing;
 
-      const safeAreaPaddingTop = 600;
-      const safeAreaPaddingBottom = 600;
+      // Pushed down to avoid clock (y: 1000 is safe below date/time)
+      const safeAreaPaddingTop = 1000;
+      const safeAreaPaddingBottom = 400;
       const drawableHeight = baseHeight - safeAreaPaddingTop - safeAreaPaddingBottom;
 
       const titleHeight = 50;
       const subtitleHeight = 40;
-      const paddingBetweenTitleAndGrid = 100;
-      const paddingBetweenGridAndSubtitle = 100;
+      const paddingBetweenTitleAndGrid = 80;
+      const paddingBetweenGridAndSubtitle = 80;
 
       const totalContentHeight = titleHeight + paddingBetweenTitleAndGrid + gridHeight + paddingBetweenGridAndSubtitle + subtitleHeight;
       const contentStartY = Math.round(safeAreaPaddingTop + (drawableHeight - totalContentHeight) / 2);

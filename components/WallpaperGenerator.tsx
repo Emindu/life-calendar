@@ -92,7 +92,7 @@ const WallpaperGenerator: React.FC<WallpaperGeneratorProps> = ({ weeksLived, lif
       const gridWidth = totalColumns * pillWidth + (totalColumns - 1) * spacing;
       const gridHeight = totalRows * pillHeight + (totalRows - 1) * spacing;
 
-      const safeAreaPaddingTop = 800;
+      const safeAreaPaddingTop = 1000;
       const safeAreaPaddingBottom = 450;
       const drawableHeight = baseHeight - safeAreaPaddingTop - safeAreaPaddingBottom;
 
@@ -110,7 +110,7 @@ const WallpaperGenerator: React.FC<WallpaperGeneratorProps> = ({ weeksLived, lif
       const statsY = contentStartY;
       const gridStartY = statsY + statsHeight + paddingBetweenStatsAndGrid;
       const titleY = gridStartY + gridHeight + paddingBetweenGridAndTitle;
-      const gridStartX = (baseWidth - gridWidth) / 2;
+      const gridStartX = Math.round((baseWidth - gridWidth) / 2);
 
       for (let i = 0; i < totalRows * totalColumns; i++) {
         const row = Math.floor(i / totalColumns);
@@ -159,7 +159,7 @@ const WallpaperGenerator: React.FC<WallpaperGeneratorProps> = ({ weeksLived, lif
       const titleFont = theme === 'eink' ? 'bold 48px monospace' : '700 48px "Inter", sans-serif';
       ctx.font = titleFont;
       ctx.textAlign = 'center';
-      ctx.fillText('Life Calendar', baseWidth / 2, Math.round(titleY));
+      ctx.fillText('Life Calendar', Math.round(baseWidth / 2), Math.round(titleY));
       ctx.globalAlpha = 1.0;
     };
 

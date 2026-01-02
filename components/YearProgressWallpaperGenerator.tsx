@@ -88,7 +88,7 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
 
       const barWidth = totalColumns * pillWidth + (totalColumns - 1) * spacing;
 
-      const safeAreaPaddingTop = 800;
+      const safeAreaPaddingTop = 1000;
       const safeAreaPaddingBottom = 450;
       const drawableHeight = baseHeight - safeAreaPaddingTop - safeAreaPaddingBottom;
 
