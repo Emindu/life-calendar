@@ -1,0 +1,5 @@
+{
+  "name": "Life Calendar",
+  "description": "A web application to visualize your life in weeks, inspired by the concept of 'memento mori'. Enter your birthdate to see a grid of your life, with past weeks filled in and future weeks empty, providing a stark perspective on the time you have.",
+  "requestFramePermissions": []
+}
