@@ -96,13 +96,17 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
       canvas.height = baseHeight * dpr;
       ctx.scale(dpr, dpr);
 
+      // Clear the canvas
+      ctx.clearRect(0, 0, baseWidth, baseHeight);
+
       const currentTheme = themes[theme];
 
       ctx.fillStyle = currentTheme.background(ctx, baseWidth, baseHeight);
       ctx.fillRect(0, 0, baseWidth, baseHeight);
 
-      const dotRadius = 10;
-      const spacing = 12;
+      // Adjusted for better visual balance on mobile
+      const dotRadius = 14; 
+      const spacing = 16;
       const totalColumns = 20;
 
       const gridWidth = totalColumns * (dotRadius * 2) + (totalColumns - 1) * spacing;
@@ -115,23 +119,25 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
 
       const titleHeight = 50;
       const subtitleHeight = 40;
-      const paddingBetweenTitleAndGrid = 80;
-      const paddingBetweenGridAndSubtitle = 80;
+      const paddingBetweenTitleAndGrid = 100;
+      const paddingBetweenGridAndSubtitle = 100;
 
       const totalContentHeight = titleHeight + paddingBetweenTitleAndGrid + gridHeight + paddingBetweenGridAndSubtitle + subtitleHeight;
-      const contentStartY = safeAreaPaddingTop + (drawableHeight - totalContentHeight) / 2;
+      const contentStartY = Math.round(safeAreaPaddingTop + (drawableHeight - totalContentHeight) / 2);
 
       const titleY = contentStartY;
       const gridStartY = titleY + titleHeight + paddingBetweenTitleAndGrid;
       const subtitleY = gridStartY + gridHeight + paddingBetweenGridAndSubtitle;
-      const gridStartX = (baseWidth - gridWidth) / 2;
+      
+      // Force integer rounding for perfect centering
+      const gridStartX = Math.round((baseWidth - gridWidth) / 2);
 
       ctx.fillStyle = currentTheme.text;
       ctx.globalAlpha = 0.8;
-      const titleFont = theme === 'eink' ? 'bold 48px monospace' : '700 48px "Inter", sans-serif';
+      const titleFont = theme === 'eink' ? 'bold 52px monospace' : '700 52px "Inter", sans-serif';
       ctx.font = titleFont;
       ctx.textAlign = 'center';
-      ctx.fillText('This Year in Days', baseWidth / 2, Math.round(titleY));
+      ctx.fillText('This Year in Days', Math.round(baseWidth / 2), Math.round(titleY));
 
       for (let i = 0; i < daysInYear; i++) {
         const row = Math.floor(i / totalColumns);
@@ -167,15 +173,13 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
 
       ctx.fillStyle = currentTheme.text;
       ctx.globalAlpha = 0.7;
-      const subtitleFont = theme === 'eink' ? '36px monospace' : '500 36px "Inter", sans-serif';
+      const subtitleFont = theme === 'eink' ? '38px monospace' : '500 38px "Inter", sans-serif';
       ctx.font = subtitleFont;
       ctx.textAlign = 'center';
-      ctx.fillText(`Day ${dayOfYear} of ${daysInYear}`, baseWidth / 2, Math.round(subtitleY));
+      ctx.fillText(`Day ${dayOfYear} of ${daysInYear}`, Math.round(baseWidth / 2), Math.round(subtitleY));
       ctx.globalAlpha = 1.0;
 
-      // Trigger auto-download if requested
       if (autoDownload) {
-        // Short delay to ensure browser handles the render before download starts
         setTimeout(handleDownload, 500);
       }
     };

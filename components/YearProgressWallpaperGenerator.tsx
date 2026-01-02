@@ -73,14 +73,17 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
       canvas.height = baseHeight * dpr;
       ctx.scale(dpr, dpr);
 
+      ctx.clearRect(0, 0, baseWidth, baseHeight);
+
       const currentTheme = themes[theme];
 
       ctx.fillStyle = currentTheme.background(ctx, baseWidth, baseHeight);
       ctx.fillRect(0, 0, baseWidth, baseHeight);
 
-      const pillWidth = 15;
+      // Adjusted to be even: 52 * 16 + 51 * 4 = 1036 (Even)
+      const pillWidth = 16;
       const pillHeight = 60;
-      const spacing = 5;
+      const spacing = 4;
       const totalColumns = 52;
 
       const barWidth = totalColumns * pillWidth + (totalColumns - 1) * spacing;
@@ -96,12 +99,12 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
       const paddingBetweenBarAndSubtitle = 60;
 
       const totalContentHeight = titleHeight + paddingBetweenTitleAndBar + barHeight + paddingBetweenBarAndSubtitle + subtitleHeight;
-      const contentStartY = safeAreaPaddingTop + (drawableHeight - totalContentHeight) / 2;
+      const contentStartY = Math.round(safeAreaPaddingTop + (drawableHeight - totalContentHeight) / 2);
 
       const titleY = contentStartY;
       const barStartY = titleY + titleHeight + paddingBetweenTitleAndBar;
       const subtitleY = barStartY + barHeight + paddingBetweenBarAndSubtitle;
-      const barStartX = (baseWidth - barWidth) / 2;
+      const barStartX = Math.round((baseWidth - barWidth) / 2);
 
       ctx.fillStyle = currentTheme.text;
 
@@ -109,7 +112,7 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
       const titleFont = theme === 'eink' ? 'bold 48px monospace' : '700 48px "Inter", sans-serif';
       ctx.font = titleFont;
       ctx.textAlign = 'center';
-      ctx.fillText('Year in Weeks', baseWidth / 2, Math.round(titleY));
+      ctx.fillText('Year in Weeks', Math.round(baseWidth / 2), Math.round(titleY));
 
       for (let i = 0; i < totalColumns; i++) {
         const x = barStartX + i * (pillWidth + spacing);
@@ -145,7 +148,7 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
       const subtitleFont = theme === 'eink' ? '36px monospace' : '500 36px "Inter", sans-serif';
       ctx.font = subtitleFont;
       ctx.textAlign = 'center';
-      ctx.fillText(`Week ${weekOfYear} of 52`, baseWidth / 2, Math.round(subtitleY));
+      ctx.fillText(`Week ${weekOfYear} of 52`, Math.round(baseWidth / 2), Math.round(subtitleY));
       ctx.globalAlpha = 1.0;
     };
 
