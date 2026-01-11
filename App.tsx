@@ -41,6 +41,7 @@ const App: React.FC = () => {
             daysInYear={daysInYear} 
             initialTheme="eink" 
             hideUI={true} 
+            autoDownload={true}
         />
       </div>
     );
