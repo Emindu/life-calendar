@@ -15,7 +15,12 @@ const App: React.FC = () => {
   const [isWallpaperModalOpen, setWallpaperModalOpen] = useState(false);
   const [isYearProgressModalOpen, setYearProgressModalOpen] = useState(false);
   const [isDayProgressModalOpen, setDayProgressModalOpen] = useState(false);
-  const [isApiMode, setIsApiMode] = useState(false);
+  const [apiMode, setApiMode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setApiMode(params.get('api'));
+  }, []);
 
   const {
     weeksLived,
@@ -28,83 +33,56 @@ const App: React.FC = () => {
     isValid,
   } = useDateCalculations(birthDate, lifespan);
 
-  // API Detection Logic
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('api') === 'day-progress-eink') {
-      setIsApiMode(true);
-    }
-  }, []);
-
-  // Render "API" Headless Mode
-  if (isApiMode && isValid) {
+  if (apiMode === 'day-progress-eink') {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 text-center">
-        <div className="w-16 h-16 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin mb-6"></div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Generating E-ink Wallpaper...</h1>
-        <p className="text-slate-500 mb-8">Your download should start automatically.</p>
-        
-        {/* Hidden generator that auto-triggers download */}
-        <div className="hidden">
-          <DayProgressWallpaperGenerator 
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <DayProgressWallpaperGenerator 
             dayOfYear={dayOfYear} 
             daysInYear={daysInYear} 
             initialTheme="eink" 
-            autoDownload={true}
-          />
-        </div>
-
-        <button 
-          onClick={() => {
-            const url = new URL(window.location.href);
-            url.searchParams.delete('api');
-            window.location.href = url.pathname;
-          }}
-          className="text-blue-600 hover:underline font-medium"
-        >
-          Return to Dashboard
-        </button>
+            hideUI={true} 
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-2 md:p-4">
       <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-10 animate-fade-in">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+        <header className="text-center mb-3 animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Memento Mori
           </h1>
-          <p className="mt-2 text-lg text-slate-600">Your Life in Weeks</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Life in Perspectives</p>
         </header>
 
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          <div className="lg:col-span-1 space-y-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
-              <h2 className="text-xl font-bold mb-4 text-slate-900">Dashboard</h2>
-              <div className="space-y-3">
+        <main className="grid grid-cols-1 lg:grid-cols-4 gap-3 items-start">
+          <div className="lg:col-span-1 space-y-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="bg-white border border-slate-200 p-3 sm:p-4 rounded-lg shadow-sm">
+              <h2 className="text-sm font-bold mb-2 text-slate-900 uppercase tracking-wider">Config</h2>
+              <div className="space-y-2">
                 <div>
-                  <label htmlFor="birthdate" className="block text-sm font-medium text-slate-600 mb-1">
-                    Your Birth Date
+                  <label htmlFor="birthdate" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">
+                    Birth Date
                   </label>
                   <input
                     id="birthdate"
                     type="date"
                     value={birthDate}
                     onChange={(e) => setBirthDate(e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-md p-2 text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-1.5 text-xs text-slate-800 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
                   />
                 </div>
                 <div>
-                  <label htmlFor="lifespan" className="block text-sm font-medium text-slate-600 mb-1">
-                    Expected Lifespan
+                  <label htmlFor="lifespan" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">
+                    Target Age
                   </label>
                   <input
                     id="lifespan"
                     type="number"
                     value={lifespan}
                     onChange={(e) => setLifespan(parseInt(e.target.value, 10) || 0)}
-                    className="w-full bg-white border border-slate-300 rounded-md p-2 text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    className="w-full bg-slate-50 border border-slate-200 rounded p-1.5 text-xs text-slate-800 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition"
                     min="1"
                     max="120"
                   />
@@ -112,90 +90,79 @@ const App: React.FC = () => {
               </div>
 
               {isValid && (
-                <div className="mt-4 pt-4 border-t border-slate-200">
-                  <div className="space-y-2">
-                    <StatCard label="Age" value={`${ageInYears} years`} />
-                    <StatCard label="Weeks Lived" value={weeksLived.toLocaleString()} />
-                    <StatCard label="Weeks Remaining" value={weeksRemaining.toLocaleString()} />
-                    <StatCard label="Total Weeks" value={totalWeeks.toLocaleString()} />
+                <div className="mt-2 pt-2 border-t border-slate-100">
+                  <div className="space-y-0.5">
+                    <StatCard label="Age" value={`${ageInYears}y`} />
+                    <StatCard label="Lived" value={weeksLived.toLocaleString()} />
+                    <StatCard label="Left" value={weeksRemaining.toLocaleString()} />
                   </div>
                 </div>
               )}
             </div>
             
-            <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-slate-900">This Year in Weeks</h2>
-              </div>
+            <div className="bg-white border border-slate-200 p-3 sm:p-4 rounded-lg shadow-sm">
+              <h2 className="text-sm font-bold mb-2 text-slate-900 uppercase tracking-wider">Year Progress</h2>
               {isValid ? (
                   <>
                     <YearProgress weekOfYear={weekOfYear} />
-                     <div className="mt-6 text-center">
-                        <button
-                            onClick={() => setYearProgressModalOpen(true)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 text-sm w-full"
-                        >
-                            Generate Wallpaper
-                        </button>
-                    </div>
+                     <button
+                        onClick={() => setYearProgressModalOpen(true)}
+                        className="mt-2 bg-slate-800 hover:bg-black text-white font-bold py-1.5 px-3 rounded text-[10px] w-full transition-colors uppercase"
+                    >
+                        Wallpaper
+                    </button>
                   </>
               ) : (
-                <p className="text-slate-500">Enter a valid birth date to see this year's progress.</p>
+                <p className="text-slate-400 text-xs italic">Enter birth date.</p>
               )}
             </div>
 
-            <div className="bg-white border border-slate-200 p-6 rounded-lg shadow-sm">
-              <h2 className="text-xl font-bold mb-4 text-slate-900">This Year in Days</h2>
+            <div className="bg-white border border-slate-200 p-3 sm:p-4 rounded-lg shadow-sm">
+              <h2 className="text-sm font-bold mb-2 text-slate-900 uppercase tracking-wider">Day View</h2>
               {isValid ? (
                 <>
                   <DayProgress dayOfYear={dayOfYear} daysInYear={daysInYear} />
-                  <div className="mt-6 text-center flex flex-col gap-2">
+                  <div className="mt-2">
                       <button
                           onClick={() => setDayProgressModalOpen(true)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 text-sm w-full"
+                          className="bg-slate-800 hover:bg-black text-white font-bold py-1.5 px-3 rounded text-[10px] w-full transition-colors uppercase"
                       >
-                          Customize Wallpaper
+                          iPhone Wallpaper
                       </button>
-                      <a
-                          href="?api=day-progress-eink"
-                          className="text-xs text-slate-400 hover:text-slate-600 underline transition-colors"
-                      >
-                          API Endpoint: Quick E-ink Download
-                      </a>
                   </div>
                 </>
               ) : (
-                <p className="text-slate-500">Enter a valid birth date to see this year's progress.</p>
+                <p className="text-slate-400 text-xs italic">Enter birth date.</p>
               )}
             </div>
           </div>
 
-          <div className="lg:col-span-2 bg-white border border-slate-200 p-4 sm:p-6 rounded-lg shadow-sm animate-fade-in flex flex-col" style={{ animationDelay: '0.4s' }}>
-             <h2 className="text-2xl font-bold mb-4 text-slate-900 text-center">Your Life Calendar</h2>
+          <div className="lg:col-span-3 bg-white border border-slate-200 p-3 sm:p-4 rounded-lg shadow-sm animate-fade-in flex flex-col" style={{ animationDelay: '0.4s' }}>
+             <h2 className="text-base font-bold mb-3 text-slate-900 text-center uppercase tracking-widest">Life Calendar</h2>
             {isValid ? (
-              <div className="overflow-x-auto flex-grow flex justify-center pt-4">
+              <div className="overflow-visible flex-grow flex justify-center py-1">
                 <LifeCalendar weeksLived={weeksLived} lifespan={lifespan} />
               </div>
             ) : (
-              <div className="flex items-center justify-center h-full min-h-[300px] flex-grow">
-                <p className="text-slate-500 text-lg">Please enter a valid birth date to generate your calendar.</p>
+              <div className="flex items-center justify-center h-full min-h-[200px] flex-grow">
+                <p className="text-slate-500 text-sm">Enter your birth date to see your life grid.</p>
               </div>
             )}
              {isValid && (
-                <div className="mt-6 text-center">
+                <div className="mt-4 text-center">
                     <button
                         onClick={() => setWallpaperModalOpen(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 w-full max-w-xs mx-auto"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-lg shadow-blue-100 transition-all hover:scale-105 active:scale-95 text-xs uppercase"
                     >
-                        Generate iPhone Wallpaper
+                        Save Life Wallpaper
                     </button>
                 </div>
             )}
           </div>
         </main>
 
-        <footer className="text-center mt-12 text-slate-500 text-sm">
-            <p>Each circle represents one week of your life. Reflect on the past and plan for the future.</p>
+        <footer className="text-center mt-6 text-slate-400 text-[10px] uppercase tracking-tighter">
+            <p>Each box is one week. Use your time wisely.</p>
         </footer>
       </div>
 

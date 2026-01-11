@@ -1,0 +1,17 @@
+{
+  "name": "wallpaper-generator-server",
+  "version": "1.0.0",
+  "description": "Node.js script to generate wallpapers.",
+  "main": "generate-wallpaper.ts",
+  "scripts": {
+    "start": "ts-node generate-wallpaper.ts"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

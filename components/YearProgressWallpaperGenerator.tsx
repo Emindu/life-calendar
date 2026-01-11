@@ -110,7 +110,15 @@ const YearProgressWallpaperGenerator: React.FC<YearProgressWallpaperGeneratorPro
         ctx.beginPath();
         ctx.roundRect(Math.round(x), Math.round(y), pillWidth, pillHeight, [pillWidth / 2]);
 
-        if (i < weekOfYear) {
+        if (i === weekOfYear - 1) {
+            // Current Week (Red)
+            if (currentTheme.lived.shadow) {
+                ctx.shadowColor = '#EF4444';
+                ctx.shadowBlur = 8;
+            }
+            ctx.fillStyle = '#EF4444';
+            ctx.fill();
+        } else if (i < weekOfYear) {
           if (currentTheme.lived.shadow) {
             ctx.shadowColor = currentTheme.lived.color;
             ctx.shadowBlur = 4;

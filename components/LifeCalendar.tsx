@@ -12,14 +12,18 @@ interface TooltipState {
   y: number;
 }
 
-const WeekBox: React.FC<{ lived: boolean; year: number; week: number }> = React.memo(({ lived, year, week }) => {
-  const boxStyle = lived
-    ? 'bg-slate-700'
-    : 'bg-slate-200 hover:bg-slate-300';
+const WeekBox: React.FC<{ lived: boolean; isCurrent: boolean; year: number; week: number }> = React.memo(({ lived, isCurrent, year, week }) => {
+  let boxStyle = 'bg-slate-200 hover:bg-slate-400 hover:scale-125 z-10';
+  
+  if (isCurrent) {
+    boxStyle = 'bg-red-500 shadow-sm shadow-red-500/50 hover:bg-red-600 hover:scale-125 z-20';
+  } else if (lived) {
+    boxStyle = 'bg-slate-700';
+  }
 
   return (
     <div
-      className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${boxStyle}`}
+      className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-sm transition-all duration-200 cursor-crosshair ${boxStyle}`}
       data-tooltip-content={`Year: ${year + 1}, Week: ${week + 1}`}
     />
   );
@@ -64,15 +68,15 @@ const LifeCalendar: React.FC<LifeCalendarProps> = ({ weeksLived, lifespan }) => 
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full max-w-fit mx-auto overflow-hidden">
       {/* Custom Tooltip */}
       {tooltip.visible && (
         <div
-          className="fixed z-10 px-3 py-1.5 text-sm font-medium text-slate-800 bg-white border border-slate-200 rounded-lg shadow-lg pointer-events-none"
+          className="fixed z-50 px-2 py-1 text-[10px] sm:text-xs font-semibold text-white bg-slate-900 rounded shadow-xl pointer-events-none"
           style={{
             left: `${tooltip.x}px`,
             top: `${tooltip.y}px`,
-            transform: 'translate(15px, -30px)',
+            transform: 'translate(10px, -25px)',
             whiteSpace: 'nowrap',
           }}
         >
@@ -81,7 +85,7 @@ const LifeCalendar: React.FC<LifeCalendarProps> = ({ weeksLived, lifespan }) => 
       )}
 
       <div
-        className="grid gap-1 sm:gap-1.5"
+        className="grid gap-px bg-slate-50 p-1 rounded-sm"
         style={{ gridTemplateColumns: 'repeat(52, minmax(0, 1fr))' }}
         onMouseOver={handleMouseOver}
         onMouseLeave={handleMouseLeave}
@@ -90,18 +94,22 @@ const LifeCalendar: React.FC<LifeCalendarProps> = ({ weeksLived, lifespan }) => 
         {Array.from({ length: totalWeeks }).map((_, i) => {
           const year = Math.floor(i / 52);
           const week = i % 52;
+          // The last lived week is index (weeksLived - 1)
+          const isCurrent = i === weeksLived - 1;
+          
           return (
             <WeekBox
               key={i}
               lived={i < weeksLived}
+              isCurrent={isCurrent}
               year={year}
               week={week}
             />
           );
         })}
       </div>
-      <div className="w-full flex justify-between text-xs text-slate-500 mt-2 px-1">
-          <span>Age 0</span>
+      <div className="w-full flex justify-between text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider px-0.5">
+          <span>Birth</span>
           <span>Age {lifespan}</span>
       </div>
     </div>

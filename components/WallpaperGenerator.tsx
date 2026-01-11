@@ -122,7 +122,16 @@ const WallpaperGenerator: React.FC<WallpaperGeneratorProps> = ({ weeksLived, lif
         ctx.beginPath();
         ctx.roundRect(x, y, pillWidth, pillHeight, [pillHeight / 2]);
 
-        if (i < weeksLived) {
+        if (i === weeksLived - 1) {
+          // Current Point (Red)
+          ctx.shadowBlur = 0;
+          if (currentTheme.lived.shadow) {
+            ctx.shadowColor = '#EF4444';
+            ctx.shadowBlur = 12;
+          }
+          ctx.fillStyle = '#EF4444';
+          ctx.fill();
+        } else if (i < weeksLived) {
           if (currentTheme.lived.shadow) {
             ctx.shadowColor = currentTheme.lived.color;
             ctx.shadowBlur = 12;

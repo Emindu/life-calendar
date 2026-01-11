@@ -5,6 +5,7 @@ interface DayProgressWallpaperGeneratorProps {
   daysInYear: number;
   initialTheme?: ThemeKey;
   autoDownload?: boolean;
+  hideUI?: boolean;
 }
 
 const themes = {
@@ -64,7 +65,8 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
   dayOfYear, 
   daysInYear, 
   initialTheme = 'ocean',
-  autoDownload = false 
+  autoDownload = false,
+  hideUI = false
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [theme, setTheme] = useState<ThemeKey>(initialTheme);
@@ -142,7 +144,15 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
         ctx.beginPath();
         ctx.arc(Math.round(x), Math.round(y), dotRadius, 0, 2 * Math.PI);
 
-        if (i < dayOfYear) {
+        if (i === dayOfYear - 1) {
+            // Current Day (Red)
+            if (currentTheme.lived.shadow) {
+                ctx.shadowColor = '#EF4444';
+                ctx.shadowBlur = 8;
+            }
+            ctx.fillStyle = '#EF4444';
+            ctx.fill();
+        } else if (i < dayOfYear) {
           if (currentTheme.lived.shadow) {
             ctx.shadowColor = currentTheme.lived.color;
             ctx.shadowBlur = 4;
@@ -179,6 +189,23 @@ const DayProgressWallpaperGenerator: React.FC<DayProgressWallpaperGeneratorProps
 
     drawCanvas();
   }, [dayOfYear, daysInYear, theme, autoDownload]);
+
+  if (hideUI) {
+      return (
+          <div className="flex justify-center items-center h-full w-full">
+               <canvas 
+                ref={canvasRef} 
+                style={{ 
+                    width: 'auto', 
+                    height: 'auto',
+                    maxHeight: '100vh',
+                    maxWidth: '100%',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                }} 
+               />
+          </div>
+      );
+  }
 
   return (
     <div className="text-center">
